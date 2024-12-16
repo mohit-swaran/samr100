@@ -1,0 +1,67 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="axebot">
+  <!-- Green material -->
+  <material name="green">
+    <color rgba="0.0 0.8 0.0 1.0"/>
+  </material>
+
+  <!-- Black material -->
+  <material name="black">
+    <color rgba="0.0 0.0 0.0 1.0"/>
+  </material>
+
+  <!-- Grey material -->
+  <material name="grey">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
+
+  <!-- Red material -->
+  <material name="red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+
+  <!-- Blue material -->
+  <material name="blue">
+    <color rgba="0.0 0.0 1.0 1.0"/>
+  </material>
+
+  <!-- Yellow material -->
+  <material name="yellow">
+    <color rgba="1.0 1.0 0.0 1.0"/>
+  </material>
+
+  <!-- White material -->
+  <material name="white">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+
+  <!-- Orange material -->
+  <material name="orange">
+    <color rgba="1.0 0.647 0.0 1.0"/>
+  </material>
+
+  <!-- Purple material -->
+  <material name="purple">
+    <color rgba="0.5 0.0 0.5 1.0"/>
+  </material>
+
+  <!-- Cyan material -->
+  <material name="cyan">
+    <color rgba="0.0 1.0 1.0 1.0"/>
+  </material>
+
+  <!-- Magenta material -->
+  <material name="magenta">
+    <color rgba="1.0 0.0 1.0 1.0"/>
+  </material>
+
+  <!-- Pink material -->
+  <material name="pink">
+    <color rgba="1.0 0.75 0.8 1.0"/>
+  </material>
+
+  <!-- Brown material -->
+  <material name="brown">
+    <color rgba="0.6 0.3 0.0 1.0"/>
+  </material>
+
+</robot>
