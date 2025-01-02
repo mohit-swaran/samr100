@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="samr">
+
+    <xacro:arg name="sim_mode" default="true"/>
+
+    <!-- Include the core robot description -->
+    <xacro:include filename="samr_core.xacro" />
+
+    <!-- Always use Gazebo control -->
+    <xacro:include filename="gazebo_control.xacro" />
+
+    <!-- Optionally include other components if needed -->
+    <!-- <xacro:include filename="depth_camera.xacro" /> -->
+    
+</robot>

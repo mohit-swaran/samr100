@@ -1,4 +1,4 @@
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="axebot">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="samr">
   <!-- Green material -->
   <material name="green">
     <color rgba="0.0 0.8 0.0 1.0"/>

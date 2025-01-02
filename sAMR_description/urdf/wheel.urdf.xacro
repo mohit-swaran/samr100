@@ -16,15 +16,15 @@
             <visual>
                 <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
                 <geometry>
-                    <mesh filename="package://sAMR_description/meshes/roller.stl" scale= "0.001 0.001 0.001"/>
+                    <mesh filename="file://$(find sAMR_description)/meshes/roller.stl" scale= "0.001 0.001 0.001"/>
                 </geometry>
-                <material name="black"/>
+                <material name="${material}"/>
             </visual>
 
             <collision>
                 <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
                 <geometry>
-                    <mesh filename="package://sAMR_description/meshes/roller.stl" scale= "0.001 0.001 0.001"/>
+                    <mesh filename="file://$(find sAMR_description)/meshes/roller.stl" scale= "0.001 0.001 0.001"/>
                 </geometry>
             </collision>
 
@@ -65,7 +65,7 @@
             <visual>
                 <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
                 <geometry>
-                    <mesh filename="package://sAMR_description/meshes/wheel.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="file://$(find sAMR_description)/meshes/wheel.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="${material}"/>
             </visual>
@@ -73,7 +73,7 @@
             <collision>
                 <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
                 <geometry>
-                    <mesh filename="package://sAMR_description/meshes/wheel.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="file://$(find sAMR_description)/meshes/wheel.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
             </collision>
 
