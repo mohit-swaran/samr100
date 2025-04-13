@@ -41,6 +41,7 @@ RUN pip3 install --user meson
 RUN apt install -y python3-jinja2
 RUN apt install -y python3-opencv
 RUN pip install opencv-python-headless ffmpeg-python
+RUN pip install icm20948
 RUN apt install -y ros-humble-vision-opencv
 RUN apt install -y ros-humble-rosbridge-suite
 RUN apt install -y ros-humble-v4l2-camera
@@ -135,9 +136,9 @@ RUN git clone -b humble https://github.com/micro-ROS/micro_ros_setup.git
 WORKDIR $ROS_WS
 
 # install picam_ros2 and micro_ros
-COPY ./ $ROS_WS/src/picam_ros2
+COPY ./ $ROS_WS/src/samr100
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-     rosdep install -i --from-path src/picam_ros2 --rosdistro $ROS_DISTRO -y && \
+     rosdep install -i --from-path src/samr100 --rosdistro $ROS_DISTRO -y && \
      colcon build && \
      . install/local_setup.sh && \
      ros2 run micro_ros_setup create_agent_ws.sh && \
