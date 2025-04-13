@@ -7,9 +7,9 @@
     <xacro:property name="wheel_thickness" value="0.01905" />
     <xacro:property name="motor_shaft_length" value="0.005475"/>
     
-    <xacro:include filename="$(find sAMR_description)/urdf/materials.urdf.xacro"/>
-    <xacro:include filename="$(find sAMR_description)/urdf/wheel.urdf.xacro"/>
-    <xacro:include filename="$(find sAMR_description)/urdf/ros2_control.xacro"/>
+    <xacro:include filename="materials.urdf.xacro"/>
+    <xacro:include filename="wheel.urdf.xacro"/>
+    <xacro:include filename="ros2_control.xacro"/>
 
 
     <link name="base_footprint"/>
@@ -31,7 +31,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 ${PI/6}"/>
             <geometry>
-                <mesh filename="file://$(find sAMR_description)/meshes/baselink.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="file://$(find sAMR_description)//meshes/baselink.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
         <inertial>
@@ -40,8 +40,10 @@
             <inertia ixx="0.04625" ixy="0.000085" ixz="0.000287" iyy="0.04634" iyz="0.000166" izz="0.02341"/>
         </inertial>
     </link>
+    </robot>
 
-    <joint name="dummy_joint" type="fixed">
+
+    <!-- <joint name="dummy_joint" type="fixed">
         <parent link="base_link"/>
         <child link="dummy_link"/>
         <origin xyz="-0.0058 -0.0034 -0.05365" rpy="0 0 0"/>
@@ -54,11 +56,11 @@
             </geometry>
     </link>
 
-    <!-- Define wheels dynamically -->
+    Define wheels dynamically
     <xacro:wheel_macro suffix="1" theta="${PI}" chassis_radius="${chassis_radius}" 
                     material="blue"/>
     <xacro:wheel_macro suffix="2" theta="${-PI/3}" chassis_radius="${chassis_radius}"             
                     material="blue"/>
     <xacro:wheel_macro suffix="3" theta="${PI/3}" chassis_radius="${chassis_radius}" 
-                    material="blue"/>
-</robot>
+                    material="blue"/> -->
+
