@@ -10,37 +10,35 @@
 #include <micro_ros_utilities/type_utilities.h>
 #include <micro_ros_utilities/string_utilities.h>
 
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
-#include <Wire.h>
-#include <motorDriver.h>
+
+#include <microDrive.h>
 
 #include <geometry_msgs/msg/twist.h>
 #include <sensor_msgs/msg/imu.h>
 #include <diagnostic_msgs/msg/diagnostic_status.h>
 #include <diagnostic_msgs/msg/key_value.h>
 
+#define M1PWM_L_PIN    18
+#define M1PWM_R_PIN    19
+#define M1ENC_A_PIN    4
+#define M1ENC_B_PIN    5
 
-#define SDA_0   0
-#define SCL_0   1 
-#define addr    0x68
+#define M2PWM_L_PIN    20
+#define M2PWM_R_PIN    21
+#define M2ENC_A_PIN    6
+#define M2ENC_B_PIN    7
 
-#define M1PWM_L_PIN    20
-#define M1PWM_R_PIN    21
-#define M1ENC_A_PIN    16
-#define M1ENC_B_PIN    17
+#define M3PWM_L_PIN    26
+#define M3PWM_R_PIN    27
+#define M3ENC_A_PIN    8
+#define M3ENC_B_PIN    9
+
 
 #define LED_PIN 13
 
-arduino::MbedI2C Wire0(SDA_0, SCL_0);
-
-Adafruit_MPU6050 imu;
-
-
-
 motor motor1(M1PWM_L_PIN, M1PWM_R_PIN, M1ENC_A_PIN, M1ENC_B_PIN);
-// motor motor2(M2PWM_L_PIN, M2PWM_R_PIN, M2ENC_A_PIN, M2ENC_B_PIN);
-// motor motor3(M3PWM_L_PIN, M3PWM_R_PIN, M3ENC_A_PIN, M3ENC_B_PIN);
+motor motor2(M2PWM_L_PIN, M2PWM_R_PIN, M2ENC_A_PIN, M2ENC_B_PIN);
+motor motor3(M3PWM_L_PIN, M3PWM_R_PIN, M3ENC_A_PIN, M3ENC_B_PIN);
 
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
@@ -80,75 +78,17 @@ void error_loop(){
   }
 }
 
-// Timer callback to publish IMU data periodically
-void timer_callback(rcl_timer_t * timer, int64_t last_call_time)
-{  
-  RCLC_UNUSED(last_call_time);
-  if (timer != NULL) {
-    // Read IMU data
-    sensors_event_t a, g, temp;
-    imu.getEvent(&a, &g, &temp);
-
-    // Print out the IMU sensor data
-    Serial.print(">Acc X: ");
-    Serial.println(a.acceleration.x);
-    Serial.print(">Acc Y: ");
-    Serial.println(a.acceleration.y);
-    Serial.print(">Acc Z: ");
-    Serial.println(a.acceleration.z);
-
-    Serial.print(">Rotation X: ");
-    Serial.println(g.gyro.x);
-    Serial.print(">Rotation Y: ");
-    Serial.println(g.gyro.y);
-    Serial.print(">Rotation Z: ");
-    Serial.println(g.gyro.z);
-
-    Serial.print(">Temperature: ");
-    Serial.println(temp.temperature);
-    Serial.println("");
-
-    // Populate the IMU message
-    imu_msg.angular_velocity.x = g.gyro.x;
-    imu_msg.angular_velocity.y = g.gyro.y;
-    imu_msg.angular_velocity.z = g.gyro.z;
-
-    imu_msg.linear_acceleration.x = a.acceleration.x;
-    imu_msg.linear_acceleration.y = a.acceleration.y;
-    imu_msg.linear_acceleration.z = a.acceleration.z;
-
-    imu_msg.linear_acceleration_covariance[0] = 0;
-    imu_msg.angular_velocity_covariance[0] = 0;
-    imu_msg.orientation_covariance[0] = -1;  // Unavailable data
-
-    imu_msg.orientation.x = 0;
-    imu_msg.orientation.y = 0;
-    imu_msg.orientation.z = 0;
-    imu_msg.orientation.w = 0;
-
-    // Timestamp IMU data with current system time
-    struct timespec tv = {0};
-    clock_gettime(0, &tv);
-    imu_msg.header.stamp.nanosec = tv.tv_nsec;
-    imu_msg.header.stamp.sec = tv.tv_sec;
-    imu_msg.header.frame_id = micro_ros_string_utilities_set(imu_msg.header.frame_id, "/imu");
-
-    // Publish IMU message
-    RCSOFTCHECK(rcl_publish(&publisher, &imu_msg, NULL));
-  }
-}
-
 // Subscription callback for received Twist messages
 void subscription_callback(const void *msgin){
   const geometry_msgs__msg__Twist * vel_msg = (const geometry_msgs__msg__Twist *)msgin;
 
   float wheel1 = vel_msg->linear.x;
-  // float wheel2 = vel_msg->linear.y;
-  // float wheel3 = vel_msg->linear.z;
+  float wheel2 = vel_msg->linear.y;
+  float wheel3 = vel_msg->linear.z;
 
   motor1.setSpeed(wheel1);
-  // motor2.setSpeed(wheel2);
-  // motor3.setSpeed(wheel3);
+  motor2.setSpeed(wheel2);
+  motor3.setSpeed(wheel3);
 }
 
 // Timer callback to publish debug data periodically
@@ -227,23 +167,19 @@ void setup() {
   set_microros_serial_transports(Serial);
   delay(2000);
 
-  // Initialize IMU sensor
-  Wire0.begin();
-  if (!imu.begin(addr, &Wire0)) {
-    Serial.println("Failed to initialize MPU6050");
-    while(1){
-        delay(10);
-    }
-  }
-  Serial.println("MPU6050 initialized");
-  imu.setAccelerometerRange(MPU6050_RANGE_16_G);
-  imu.setGyroRange(MPU6050_RANGE_2000_DEG);
-  imu.setFilterBandwidth(MPU6050_BAND_44_HZ);
-
   // Initialize motors
-  motor1.init();
+  motor1.init(0);
   motor1.encoderTicksPerRevolution = 1170;
   motor1.setPI(3,35);
+  motor2.init(1);
+  motor2.encoderTicksPerRevolution = 1170;
+  motor2.setPI(3,35);
+  motor3.init(2);
+  motor3.encoderTicksPerRevolution = 1170;
+  motor3.setPI(3,35);
+
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
 
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
@@ -263,26 +199,12 @@ void setup() {
     ROSIDL_GET_MSG_TYPE_SUPPORT(diagnostic_msgs, msg, DiagnosticStatus),
     "/debug"));
 
-  RCCHECK(rclc_publisher_init_default(
-    &publisher,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-    "/imu/data_raw"));
-
   // Create subscription for Twist messages
   RCCHECK(rclc_subscription_init_default(
     &subscriber,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
     "/cmd_vel"));
-
-  // Create timer to periodically publish IMU data
-  const unsigned int timer_timeout = 10;
-  RCCHECK(rclc_timer_init_default(
-    &timer,
-    &support,
-    RCL_MS_TO_NS(timer_timeout),
-    timer_callback));
 
   RCCHECK(rclc_timer_init_default(
   &debug_timer,
@@ -291,7 +213,7 @@ void setup() {
   debug_timer_callback));
 
   // Create executor
-  RCCHECK(rclc_executor_init(&executor, &support.context, 3, &allocator));
+  RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber, &vel_msg, &subscription_callback, ON_NEW_DATA));
   RCCHECK(rclc_executor_add_timer(&executor, &timer));
   RCCHECK(rclc_executor_add_timer(&executor, &debug_timer));
