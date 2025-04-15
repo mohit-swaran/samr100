@@ -43,7 +43,8 @@ RUN apt install -y python3-opencv
 RUN pip install opencv-python-headless ffmpeg-python
 RUN pip install icm20948
 RUN apt install -y ros-humble-vision-opencv
-RUN apt install -y ros-humble-rosbridge-suite
+RUN apt install -y ros-humble-rosbridge-suite 
+RUN apt install -y ros-humble-imu-tools
 RUN apt install -y ros-humble-v4l2-camera
 RUN apt install -y ros-humble-ffmpeg-image-transport
 RUN apt install -y ros-humble-rqt ros-humble-rqt-image-view
