@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "imu = controller.imu:main", 
+            "imu = controller.imu:main",
+            "controller = controller.controller:main",
         ],
     },
 )
