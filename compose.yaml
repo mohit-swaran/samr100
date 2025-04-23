@@ -12,6 +12,7 @@ services:
     volumes:
       - ~/samr100/params/picam_ros2_params.yaml:/ros2_ws/picam_ros2_params.yaml/ # config goes here
       - /tmp:/tmp
+      - ~/mag_offsets.yaml:/ros2_ws/install/controller/lib/python3.10/site-packages/controller/ # mag offset file
       - ~/picam_ros2_calibration:/calibration # calibration files are stored here
       - /tmp/.X11-unix:/tmp/.X11-unix  # X11 socket for GUI apps
     environment:

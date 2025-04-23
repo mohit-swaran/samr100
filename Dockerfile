@@ -42,6 +42,10 @@ RUN apt install -y python3-jinja2
 RUN apt install -y python3-opencv
 RUN pip install opencv-python-headless ffmpeg-python
 RUN pip install icm20948
+RUN pip install scipy==1.12.0
+RUN pip install scikit-fuzzy==0.5.0
+RUN pip install pyyaml
+RUN pip install pathlib
 RUN apt install -y ros-humble-vision-opencv
 RUN apt install -y ros-humble-rosbridge-suite 
 RUN apt install -y ros-humble-imu-tools
@@ -49,6 +53,7 @@ RUN apt install -y ros-humble-v4l2-camera
 RUN apt install -y ros-humble-ffmpeg-image-transport
 RUN apt install -y ros-humble-rqt ros-humble-rqt-image-view
 RUN apt install -y ros-humble-image-transport-plugins
+RUN apt install -y ros-humble-tf-transformations
 
 
 
@@ -113,8 +118,8 @@ RUN ninja -C build install
 
 
 # fix numpy version to >= 1.25.2
-# RUN pip install numpy --force-reinstall
-
+RUN pip install numpy==1.23.5
+RUN pip install networkx
 # generate entrypoint script
 RUN echo '#!/bin/bash \n \
 set -e \n \
