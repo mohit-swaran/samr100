@@ -1,7 +1,5 @@
-#include <Arduino.h>
 #include <micro_ros_platformio.h>
 
-#include <stdio.h>
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
@@ -10,31 +8,29 @@
 #include <micro_ros_utilities/type_utilities.h>
 #include <micro_ros_utilities/string_utilities.h>
 
-
 #include <microDrive.h>
-
+#include <math.h>
 #include <geometry_msgs/msg/twist.h>
-#include <sensor_msgs/msg/imu.h>
 #include <diagnostic_msgs/msg/diagnostic_status.h>
 #include <diagnostic_msgs/msg/key_value.h>
 
-#define M1PWM_L_PIN    18
-#define M1PWM_R_PIN    19
-#define M1ENC_A_PIN    4
-#define M1ENC_B_PIN    5
+#define M1PWM_L_PIN    21
+#define M1PWM_R_PIN    20
+#define M1ENC_A_PIN    9
+#define M1ENC_B_PIN    8
 
-#define M2PWM_L_PIN    20
-#define M2PWM_R_PIN    21
-#define M2ENC_A_PIN    6
-#define M2ENC_B_PIN    7
+#define M2PWM_L_PIN    19
+#define M2PWM_R_PIN    18
+#define M2ENC_A_PIN    12
+#define M2ENC_B_PIN    11
 
-#define M3PWM_L_PIN    26
-#define M3PWM_R_PIN    27
-#define M3ENC_A_PIN    8
-#define M3ENC_B_PIN    9
-
+#define M3PWM_L_PIN    16
+#define M3PWM_R_PIN    17
+#define M3ENC_A_PIN    15
+#define M3ENC_B_PIN    14
 
 #define LED_PIN 13
+
 
 motor motor1(M1PWM_L_PIN, M1PWM_R_PIN, M1ENC_A_PIN, M1ENC_B_PIN);
 motor motor2(M2PWM_L_PIN, M2PWM_R_PIN, M2ENC_A_PIN, M2ENC_B_PIN);
@@ -45,9 +41,6 @@ motor motor3(M3PWM_L_PIN, M3PWM_R_PIN, M3ENC_A_PIN, M3ENC_B_PIN);
 
 rcl_subscription_t subscriber;
 geometry_msgs__msg__Twist vel_msg;
-
-rcl_publisher_t publisher;
-sensor_msgs__msg__Imu imu_msg;
 
 rcl_publisher_t debug_publisher;
 diagnostic_msgs__msg__DiagnosticStatus debug_msg;
@@ -80,27 +73,27 @@ void error_loop(){
 
 // Subscription callback for received Twist messages
 void subscription_callback(const void *msgin){
-  const geometry_msgs__msg__Twist * vel_msg = (const geometry_msgs__msg__Twist *)msgin;
-
-  float wheel1 = vel_msg->linear.x;
-  float wheel2 = vel_msg->linear.y;
-  float wheel3 = vel_msg->linear.z;
-
-  motor1.setSpeed(wheel1);
-  motor2.setSpeed(wheel2);
-  motor3.setSpeed(wheel3);
-}
+    const geometry_msgs__msg__Twist * vel_msg = (const geometry_msgs__msg__Twist *)msgin;
+  
+    float wheel1 = vel_msg->linear.x;
+    float wheel2 = vel_msg->linear.y;
+    float wheel3 = vel_msg->linear.z;
+  
+    motor1.setSpeed(wheel1);
+    motor2.setSpeed(wheel2);
+    motor3.setSpeed(wheel3);
+  }
 
 // Timer callback to publish debug data periodically
 void debug_timer_callback(rcl_timer_t * timer, int64_t last_call_time) {
   RCLC_UNUSED(last_call_time);
   
   // Collect and populate the debug message
-  int encoder = motor1.getEncoderCounts();
+  int encoder = motor3.getEncoderCounts();
   float battery = 11.89;
-  float velocity= motor1.getVelocityFiltered();
-  float eintegral = motor1.getEintegral();
-  float setpoint = motor1.getSetpoint();
+  float velocity= motor3.getVelocityFiltered();
+  float eintegral = motor3.getEintegral();
+  float setpoint = motor3.getSetpoint();
 
   debug_msg.name.data = (char *)"DebugData";
   debug_msg.name.size = strlen(debug_msg.name.data);
@@ -171,15 +164,14 @@ void setup() {
   motor1.init(0);
   motor1.encoderTicksPerRevolution = 1170;
   motor1.setPI(3,35);
+
   motor2.init(1);
   motor2.encoderTicksPerRevolution = 1170;
   motor2.setPI(3,35);
+
   motor3.init(2);
   motor3.encoderTicksPerRevolution = 1170;
   motor3.setPI(3,35);
-
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);
 
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
@@ -215,7 +207,6 @@ void setup() {
   // Create executor
   RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber, &vel_msg, &subscription_callback, ON_NEW_DATA));
-  RCCHECK(rclc_executor_add_timer(&executor, &timer));
   RCCHECK(rclc_executor_add_timer(&executor, &debug_timer));
 
 }
@@ -227,5 +218,7 @@ void loop() {
     {
         pidTimer = micros();
         motor1.updatePI(); 
+        motor2.updatePI();
+        motor3.updatePI();
     }
 }
